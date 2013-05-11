@@ -19,6 +19,11 @@ struct run_config
         static compile_config::tree::value_type max_value;
         static unsigned default_depth;
     };
+    
+    struct genetic_operators
+    {
+        static unsigned subtree_default_depth;
+    };
 };
 
 #endif	/* RUN_CONFIG_H */
