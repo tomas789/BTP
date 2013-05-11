@@ -14,12 +14,29 @@
 #include <random>
 #include <chrono>
 
+/**
+ * Encapsulates random number generating functions
+ */
 namespace stochastic
 {
     
+    /**
+     * Random number engine
+     * 
+     * TODO : Implement this as functor
+     */
     compile_config::stochastic::engine engine(
         std::chrono::system_clock::now().time_since_epoch().count());
     
+    /**
+     * Generate (pseudo-)random number in range [min, max]
+     * 
+     * Floating point version
+     * 
+     * @param min
+     * @param max
+     * @return 
+     */
     template<class T>
     typename std::enable_if<
             std::is_floating_point<T>::value, 
@@ -29,6 +46,15 @@ namespace stochastic
         return dist(stochastic::engine);
     }
 
+    /**
+     * Generate (pseudo-)random number in range [min, max]
+     * 
+     * Discrete version
+     * 
+     * @param min
+     * @param max
+     * @return 
+     */
     template<class T>
     typename std::enable_if<
             std::is_integral<T>::value, 
@@ -38,11 +64,21 @@ namespace stochastic
         return dist(stochastic::engine);
     }
     
+    /**
+     * Generate (pseudo-)random number of type T in range [0, max]
+     * 
+     * @param max
+     * @return 
+     */
     template <class T>
     T get_max(T max) {
         return get_minmax(T(), max);
     }
     
+    /**
+     * Generate (pseudo-)random boolean 
+     * @return 
+     */
     bool get_bool() {
         return get_minmax(0, 1);
     }
