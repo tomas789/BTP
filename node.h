@@ -103,7 +103,8 @@ std::ostream & operator <<(std::ostream & out, node * n) {
     return n->print(out);
 }
 
-std::unique_ptr<node> random_tree(unsigned depth)
+std::unique_ptr<node> random_tree(
+        unsigned depth = run_config::tree::default_depth)
 {
     node * result;
     
