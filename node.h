@@ -34,6 +34,20 @@ class subtree_reference
 public:
     enum class type { left, right, no };
     subtree_reference(node & n, side s) : n_(n), s_(s) { };
+    subtree_reference & operator =(node * n) {
+        switch (s_) {
+            case type::left:
+                n.left_ = std::unique_ptr<node>(n);
+                break;
+            case type::right:
+                n.right_ = std::unique_ptr<node>(n);
+                break;
+            case type::no:
+                break;
+        }
+        
+        return *this;
+    }
 };
 
 class node 
@@ -56,10 +70,10 @@ class node_type : public node
     std::unique_ptr<node> right_ = nullptr;
     static const char op;
     virtual subtree_reference left_subtree() const { 
-        return subtree_reference(*this, subtree_reference::left);
+        return subtree_reference(*this, subtree_reference::type::left);
     };
     virtual subtree_reference right_subtree() const {
-        return subtree_reference(*this, subtree_reference::right);
+        return subtree_reference(*this, subtree_reference::type::right);
     }
 public:
     node_type(std::unique_ptr<node> && left, std::unique_ptr<node> && right) 
@@ -96,10 +110,10 @@ class node_type<type::constant> : public node
 {
     const compile_config::tree::value_type val_ = 0;
     virtual subtree_reference left_subtree() const { 
-        return subtree_reference(*this, subtree_reference::no); 
+        return subtree_reference(*this, subtree_reference::type::no); 
     };
     virtual subtree_reference right_subtree() const {
-        return subtree_reference(*this, subtree_reference::no);
+        return subtree_reference(*this, subtree_reference::type::no);
     };
 public:
     node_type(compile_config::tree::value_type val) : val_(val) { };
@@ -116,10 +130,10 @@ class node_type<type::variable> : public node
 {
     std::size_t num_ = 0;
     virtual subtree_reference left_subtree() const { 
-        return subtree_reference(*this, subtree_reference::no); 
+        return subtree_reference(*this, subtree_reference::type::no); 
     };
     virtual subtree_reference right_subtree() const {
-        return subtree_reference(*this, subtree_reference::no);
+        return subtree_reference(*this, subtree_reference::type::no);
     };
 public:
     node_type(std::size_t num) : num_(num) { };
