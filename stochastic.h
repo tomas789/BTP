@@ -5,8 +5,8 @@
  * Created on May 9, 2013, 6:54 PM
  */
 
-#ifndef RANDOM_H
-#define	RANDOM_H
+#ifndef STOCHASTIC_H
+#define	STOCHASTIC_H
 
 #include "compile_config.h"
 #include "run_config.h"
@@ -22,10 +22,8 @@ namespace stochastic
     
     /**
      * Random number engine
-     * 
-     * TODO : Implement this as functor
      */
-    compile_config::stochastic::engine engine(
+    static compile_config::stochastic::engine engine(
         std::chrono::system_clock::now().time_since_epoch().count());
     
     /**
@@ -43,7 +41,7 @@ namespace stochastic
             T
         >::type get_minmax(T min, T max) {
         std::uniform_real_distribution<T> dist(min, max);
-        return dist(stochastic::engine);
+        return dist(engine);
     }
 
     /**
@@ -61,7 +59,7 @@ namespace stochastic
             T
         >::type get_minmax(T min, T max) {
         std::uniform_int_distribution<T> dist(min, max);
-        return dist(stochastic::engine);
+        return dist(engine);
     }
     
     /**
@@ -72,7 +70,7 @@ namespace stochastic
      */
     template <class T>
     T get_max(T max) {
-        return get_minmax(T(), max);
+        return get_minmax((T)0, max);
     }
     
     /**
@@ -85,5 +83,5 @@ namespace stochastic
 }
 
 
-#endif	/* RANDOM_H */
+#endif	/* STOCHASTIC_H */
 

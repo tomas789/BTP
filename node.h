@@ -32,46 +32,20 @@ class subtree_reference
 public:
     enum class type { left, right, no };
 private:
-    node & n_;
-    side s_;
+    node * n_;
+    type s_;
 public:
-    subtree_reference(node & n, side s) : n_(n), s_(s) { };
-    subtree_reference & operator =(node * n) {
-        switch (s_) {
-            case type::left:
-                n.left_ = std::unique_ptr<node>(n);
-                break;
-            case type::right:
-                n.right_ = std::unique_ptr<node>(n);
-                break;
-            case type::no:
-                break;
-        }
-        
-        return *this;
-    }
-    
-    node * get() const {
-        switch (s_) {
-            case type::left:
-                return n.left_.get();
-                break;
-            case type::right:
-                return n.right_.get();
-                break;
-            case type::no:
-                return nullptr;
-                break;
-        }
-    }
+    subtree_reference(node * n, type s) : n_(n), s_(s) { };
+    subtree_reference & operator =(node * n);
+    node * get() const;
 };
 
 class node 
 {
     friend class genetic_operators_helper;
     friend class subtree_reference;
-    virtual subtree_reference left_subtree() const = 0;
-    virtual subtree_reference right_subtree() const = 0;
+    virtual subtree_reference left_subtree() = 0;
+    virtual subtree_reference right_subtree() = 0;
 public:
     virtual double eval(const valuation &) const = 0;
     virtual bool is_terminal() const = 0;
@@ -85,11 +59,11 @@ class node_type : public node
     std::unique_ptr<node> left_ = nullptr;
     std::unique_ptr<node> right_ = nullptr;
     static const char op;
-    virtual subtree_reference left_subtree() const { 
-        return subtree_reference(*this, subtree_reference::type::left);
+    virtual subtree_reference left_subtree() { 
+        return subtree_reference(this, subtree_reference::type::left);
     };
-    virtual subtree_reference right_subtree() const {
-        return subtree_reference(*this, subtree_reference::type::right);
+    virtual subtree_reference right_subtree() {
+        return subtree_reference(this, subtree_reference::type::right);
     }
 public:
     node_type(std::unique_ptr<node> && left, std::unique_ptr<node> && right) 
@@ -125,11 +99,11 @@ template <>
 class node_type<type::constant> : public node
 {
     const compile_config::tree::value_type val_ = 0;
-    virtual subtree_reference left_subtree() const { 
-        return subtree_reference(*this, subtree_reference::type::no); 
+    virtual subtree_reference left_subtree() { 
+        return subtree_reference(this, subtree_reference::type::no); 
     };
-    virtual subtree_reference right_subtree() const {
-        return subtree_reference(*this, subtree_reference::type::no);
+    virtual subtree_reference right_subtree() {
+        return subtree_reference(this, subtree_reference::type::no);
     };
 public:
     node_type(compile_config::tree::value_type val) : val_(val) { };
@@ -145,11 +119,11 @@ template <>
 class node_type<type::variable> : public node
 {
     std::size_t num_ = 0;
-    virtual subtree_reference left_subtree() const { 
-        return subtree_reference(*this, subtree_reference::type::no); 
+    virtual subtree_reference left_subtree() { 
+        return subtree_reference(this, subtree_reference::type::no); 
     };
-    virtual subtree_reference right_subtree() const {
-        return subtree_reference(*this, subtree_reference::type::no);
+    virtual subtree_reference right_subtree() {
+        return subtree_reference(this, subtree_reference::type::no);
     };
 public:
     node_type(std::size_t num) : num_(num) { };
@@ -218,6 +192,36 @@ std::unique_ptr<node> random_tree(
     }
     
     return std::unique_ptr<node>(result);
+}
+
+subtree_reference & subtree_reference::operator=(node * n) {
+    switch (s_) {
+        case type::left:
+            n_->left_subtree() = n;
+            break;
+        case type::right:
+            n_->right_subtree() = n;
+            break;
+        case type::no:
+            break;
+    }
+
+    return *this;
+}
+
+node * subtree_reference::get() const {
+    switch (s_) {
+        case type::left:
+            return n_->left_subtree().get();
+            break;
+        case type::right:
+            return n_->right_subtree().get();
+            break;
+        case type::no:
+        default:
+            return nullptr;
+            break;
+    }
 }
 
 

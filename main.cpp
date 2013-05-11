@@ -6,16 +6,13 @@
  */
 
 #include <iostream>
-#include "node.h"
-#include "valuation.h"
-#include "genetic_operators.h"
 #include <vector>
 #include <algorithm>
 
-/*
- * 
- */
-int main(int argc, char** argv) {
+#include "node.h"
+
+int 
+main(int argc, char * argv[]) {
 
     valuation v;
     

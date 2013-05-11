@@ -11,6 +11,7 @@
 #include "node.h"
 
 #include <vector>
+#include <tuple>
 
 /**
  * Helper for genentic operators. Every operator should access node's private
@@ -25,9 +26,9 @@ public:
     
 private:
     static void make_flat_helper(std::size_t i, node_container & v) {
-        if (!v[i].second->is_terminal()) {
-            v.emplace_back(i, side::left, v[i].second->left_->get());
-            v.emplace_back(i, side::right, v[i].second->right_->get());
+        if (!std::get<2>(v[i])->is_terminal()) {
+            v.emplace_back(i, side::left, std::get<2>(v[i])->left_subtree().get());
+            v.emplace_back(i, side::right, std::get<2>(v[i])->right_subtree().get());
             auto size = v.size();
             make_flat_helper(size - 2, v);
             make_flat_helper(size - 1, v);
@@ -46,31 +47,30 @@ public:
         auto v = make_flat(n);
         auto point = stochastic::get_max(v.size() - 1);
         auto selected_node = v[point];
-        
+
         node * new_subtree = nullptr;
-        
+
         if (std::get<2>(selected_node)->is_terminal()) {
-            new_subtree = random_tree(0);
+            new_subtree = random_tree(0).get();
         } else {
-            new_subtree = random_tree(1);
-            new_subtree->left_ = std::move(std::get<2>(selected_node)->left_);
-            new_subtree->right_ = std::move(std::get<2>(selected_node)->right_);
+            new_subtree = random_tree(1).get();
+            new_subtree->left_subtree() = std::move(std::get<2>(selected_node)->left_subtree().get());
+            new_subtree->right_subtree() = std::move(std::get<2>(selected_node)->right_subtree().get());
         }
-        
+
+        auto predecessor = v[std::get<0>(selected_node)];
         switch(std::get<1>(selected_node)) {
             case side::root:
                 return new_subtree;
                 break;
             case side::left:
-                auto prodecessor = v[std::get<0>(selected_node)];
-                std::get<2>(predecessor)->left_ = std::unique_ptr(new_subtree);
+                std::get<2>(predecessor)->left_subtree() = new_subtree;
                 break;
             case side::right:
-                auto prodecessor = v[std::get<0>(selected_node)];
-                std::get<2>(predecessor)->right_ = std::unique_ptr(new_subtree);
+                std::get<2>(predecessor)->right_subtree() = new_subtree;
                 break;
         }
-        
+
         return n;
     }
     
@@ -78,19 +78,17 @@ public:
         auto v = make_flat(n);
         auto point = stochastic::get_max(v.size() - 1);
         auto selected_node = v[point];
-        
-        node * new_subtree = random_tree(
+
+        auto new_subtree = random_tree(
                 run_config::genetic_operators::subtree_default_depth);
-        std::unique_ptr<node> t(new_subtree);
-        
+
         if (stochastic::get_bool()) 
-            std::get<2>(selected_node)->left_ = std::move(t);
+            std::get<2>(selected_node)->left_subtree() = new_subtree.get();
         else
-            std::get<2>(selected_node)->right_ = std::move(t);
-        
+            std::get<2>(selected_node)->right_subtree() = new_subtree.get();
+
         return n;
     }
-    
 };
 
 /**
@@ -103,7 +101,6 @@ std::unique_ptr<node> mutation_single_point(std::unique_ptr<node> && n) {
     node * t = genetic_operators_helper::mutation_single_point(n.get());
     return std::unique_ptr<node>(t);
 }
-
 /**
  * Replace rendom selected node with random subtree avoiding headless chicken.
  * 
@@ -114,6 +111,5 @@ std::unique_ptr<node> mutation_subtree(std::unique_ptr<node> && n) {
     node * t = genetic_operators_helper::mutation_subtree(n.get());
     return std::unique_ptr<node>(t);
 }
-
 #endif	/* GENETIC_OPERATORS_H */
 
