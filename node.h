@@ -25,9 +25,23 @@ enum class type {
     variable // terminal
 };
 
+class node;
+
+class subtree_reference 
+{
+    node & n_;
+    side s_;
+public:
+    enum class type { left, right, no };
+    subtree_reference(node & n, side s) : n_(n), s_(s) { };
+};
+
 class node 
 {
     friend class genetic_operators_helper;
+    friend class subtree_reference;
+    virtual subtree_reference left_subtree() const = 0;
+    virtual subtree_reference right_subtree() const = 0;
 public:
     virtual double eval(const valuation &) const = 0;
     virtual bool is_terminal() const = 0;
@@ -41,6 +55,12 @@ class node_type : public node
     std::unique_ptr<node> left_ = nullptr;
     std::unique_ptr<node> right_ = nullptr;
     static const char op;
+    virtual subtree_reference left_subtree() const { 
+        return subtree_reference(*this, subtree_reference::left);
+    };
+    virtual subtree_reference right_subtree() const {
+        return subtree_reference(*this, subtree_reference::right);
+    }
 public:
     node_type(std::unique_ptr<node> && left, std::unique_ptr<node> && right) 
         : left_(std::move(left)), right_(std::move(right)) { };
@@ -75,6 +95,12 @@ template <>
 class node_type<type::constant> : public node
 {
     const compile_config::tree::value_type val_ = 0;
+    virtual subtree_reference left_subtree() const { 
+        return subtree_reference(*this, subtree_reference::no); 
+    };
+    virtual subtree_reference right_subtree() const {
+        return subtree_reference(*this, subtree_reference::no);
+    };
 public:
     node_type(compile_config::tree::value_type val) : val_(val) { };
     virtual double eval(const valuation & v) const { return val_; };
@@ -89,6 +115,12 @@ template <>
 class node_type<type::variable> : public node
 {
     std::size_t num_ = 0;
+    virtual subtree_reference left_subtree() const { 
+        return subtree_reference(*this, subtree_reference::no); 
+    };
+    virtual subtree_reference right_subtree() const {
+        return subtree_reference(*this, subtree_reference::no);
+    };
 public:
     node_type(std::size_t num) : num_(num) { };
     virtual double eval(const valuation & v) const { return v[num_]; };
