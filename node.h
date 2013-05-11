@@ -48,6 +48,20 @@ public:
         
         return *this;
     }
+    
+    node * get() const {
+        switch (s_) {
+            case type::left:
+                return n.left_.get();
+                break;
+            case type::right:
+                return n.right_.get();
+                break;
+            case type::no:
+                return nullptr;
+                break;
+        }
+    }
 };
 
 class node 
