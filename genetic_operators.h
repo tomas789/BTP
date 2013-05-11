@@ -25,9 +25,9 @@ public:
     
 private:
     static void make_flat_helper(std::size_t i, node_container & v) {
-        if (!std::get<2>(v[i])->is_terminal()) {
-            v.emplace_back(i, side::left, std::get<2>(v[i])->left_subtree()->get());
-            v.emplace_back(i, side::right, std::get<2>(v[i])->right_subtree()->get());
+        if (!v[i].second->is_terminal()) {
+            v.emplace_back(i, side::left, v[i].second->left_->get());
+            v.emplace_back(i, side::right, v[i].second->right_->get());
             auto size = v.size();
             make_flat_helper(size - 2, v);
             make_flat_helper(size - 1, v);
