@@ -17,6 +17,7 @@ struct run_config
         static unsigned num_variables;
         static compile_config::tree::value_type min_value;
         static compile_config::tree::value_type max_value;
+        static unsigned default_depth;
     };
 };
 
