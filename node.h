@@ -29,10 +29,12 @@ class node;
 
 class subtree_reference 
 {
+public:
+    enum class type { left, right, no };
+private:
     node & n_;
     side s_;
 public:
-    enum class type { left, right, no };
     subtree_reference(node & n, side s) : n_(n), s_(s) { };
     subtree_reference & operator =(node * n) {
         switch (s_) {
