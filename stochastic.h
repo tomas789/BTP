@@ -38,6 +38,11 @@ namespace stochastic
         return dist(stochastic::engine);
     }
     
+    template <class T>
+    T get_max(T max) {
+        return get_minmax(T(), max);
+    }
+    
     bool get_bool() {
         return get_minmax(0, 1);
     }
