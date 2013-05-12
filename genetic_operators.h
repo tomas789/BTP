@@ -54,8 +54,8 @@ public:
             new_subtree = random_tree(0).get();
         } else {
             new_subtree = random_tree(1).get();
-            new_subtree->left_subtree() = std::move(std::get<2>(selected_node)->left_subtree().get());
-            new_subtree->right_subtree() = std::move(std::get<2>(selected_node)->right_subtree().get());
+            new_subtree->left_subtree() = std::get<2>(selected_node)->left_subtree();
+            new_subtree->right_subtree() = std::get<2>(selected_node)->right_subtree();
         }
 
         auto predecessor = v[std::get<0>(selected_node)];
@@ -64,10 +64,10 @@ public:
                 return new_subtree;
                 break;
             case side::left:
-                std::get<2>(predecessor)->left_subtree() = new_subtree;
+                std::get<2>(predecessor)->left_subtree() = std::unique_ptr<node>(new_subtree);
                 break;
             case side::right:
-                std::get<2>(predecessor)->right_subtree() = new_subtree;
+                std::get<2>(predecessor)->right_subtree() = std::unique_ptr<node>(new_subtree);
                 break;
         }
 
@@ -83,9 +83,9 @@ public:
                 run_config::genetic_operators::subtree_default_depth);
 
         if (stochastic::get_bool()) 
-            std::get<2>(selected_node)->left_subtree() = new_subtree.get();
+            std::get<2>(selected_node)->left_subtree() = std::move(new_subtree);
         else
-            std::get<2>(selected_node)->right_subtree() = new_subtree.get();
+            std::get<2>(selected_node)->right_subtree() = std::move(new_subtree);
 
         return n;
     }
