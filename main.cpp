@@ -8,22 +8,25 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <functional>
 
 #include "node.h"
 #include "genetic_operators.h"
+#include "valuation.h"
 
 int 
 main(int argc, char * argv[]) {
 
     valuation v;
     
-    std::vector<std::unique_ptr<node>> p(1);
-    std::generate(p.begin(), p.end(), std::bind(random_tree, 3));
+    std::vector<tree> p(1);
+    for (auto & t : p) t = random(3);
     
-    auto t = std::move(p[0]);
-    t->print(std::cout) << std::endl;
-    auto t2 = mutation_single_point(std::move(t));
-    t2->print(std::cout) << std::endl;
+    std::cout << p[0]->eval(valuation()) << std::endl;
+    
+    p[0]->print(std::cout ) << std::endl;
+    
+    //p[0]->print(std::cout);
     
     return 0;
 }

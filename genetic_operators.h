@@ -8,6 +8,8 @@
 #ifndef GENETIC_OPERATORS_H
 #define	GENETIC_OPERATORS_H
 
+#if 0
+
 #include "node.h"
 
 #include <vector>
@@ -111,5 +113,8 @@ std::unique_ptr<node> mutation_subtree(std::unique_ptr<node> && n) {
     node * t = genetic_operators_helper::mutation_subtree(n.get());
     return std::unique_ptr<node>(t);
 }
+
+#endif
+
 #endif	/* GENETIC_OPERATORS_H */
 
