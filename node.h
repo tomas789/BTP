@@ -27,6 +27,22 @@ public:
     virtual std::unique_ptr<node> clone() const = 0;
 };
 
+class tree;
+
+class tree_iterator 
+{
+    tree * tree_;
+    node * node_;
+public:
+    tree_iterator() : tree_(nullptr), node_(nullptr) { }
+    tree_iterator(const tree & t);
+    tree_iterator & left();
+    tree_iterator & right();
+    bool operator!= (const tree_iterator & t);
+    node * operator-> ();
+    tree operator* ();
+};
+
 class tree
 {
     std::unique_ptr<node> tree_;
@@ -42,11 +58,12 @@ public:
     tree & operator= (tree && t) { tree_ = std::move(t.tree_); }
     node * operator-> () { return tree_.get(); }
     
-    iterator iterator();
+    iterator this_iterator() { return iterator(*this); }
     iterator end() { return iterator(); }
     
     friend class node_non_terminal;
     friend tree random(unsigned depth);
+    friend class tree_iterator;
 };
 
 class node_non_terminal : public node
@@ -73,6 +90,8 @@ public:
         return right_->print(left_->print(out << "(") << ")" << operator_str() << "(") << ")";
     };
     virtual std::unique_ptr<node> clone() const = 0;
+    
+    friend class tree_iterator;
 };
 
 class node_terminal : public node
@@ -210,6 +229,47 @@ tree random(unsigned depth) {
     
     // Return and transfer ownership
     return tree(std::unique_ptr<node>(n));
+}
+
+tree_iterator::tree_iterator(const tree & t) {
+    tree_ = const_cast<tree *>(&t);
+    node_ = t.tree_.get();
+}
+
+tree_iterator & tree_iterator::left() {
+    if (node_ == nullptr && tree_ == nullptr)
+        throw std::out_of_range("calling left() on end()");
+    else if (node_->is_terminal()) {
+        tree_ = nullptr;
+        node_ = nullptr;
+    } else {
+        node_non_terminal * n = (node_non_terminal *) node_;
+        node_ = (node *) (n->left_.get());
+    }
+}
+
+tree_iterator & tree_iterator::right() {
+    if (node_ == nullptr && tree_ == nullptr)
+        throw std::out_of_range("calling right() on end()");
+    else if (node_->is_terminal()) {
+        tree_ = nullptr;
+        node_ = nullptr;
+    } else {
+        node_non_terminal * n = (node_non_terminal *) node_;
+        node_ = (node *) n->right_.get();
+    }
+}
+
+bool tree_iterator::operator!= (const tree_iterator & t) {
+    return tree_ != t.tree_ || node_ != t.node_;
+}
+
+node * tree_iterator::operator-> () { 
+    return node_; 
+}
+
+tree tree_iterator::operator* () { 
+    return tree(std::move(node_->clone())); 
 }
 
 #endif	/* NODE_H */
