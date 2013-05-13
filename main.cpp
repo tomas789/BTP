@@ -20,7 +20,10 @@ main(int argc, char * argv[]) {
     valuation v;
     
     std::vector<tree> p(1);
-    for (auto & t : p) t = random(3);
+    for (auto & t : p) t = random(0);
+    tree::iterator it = p[0].this_iterator();
+    it.right();
+    it->print(std::cout) << std::endl;
     
     std::cout << p[0]->eval(valuation()) << std::endl;
     
