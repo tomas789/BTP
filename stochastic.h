@@ -24,7 +24,7 @@ namespace stochastic
      * Random number engine
      */
     static compile_config::stochastic::engine engine(
-        std::chrono::system_clock::now().time_since_epoch().count());
+        (unsigned)std::chrono::system_clock::now().time_since_epoch().count());
     
     /**
      * Generate (pseudo-)random number in range [min, max]
