@@ -18,18 +18,19 @@ int
 main(int argc, char * argv[]) {
 
     valuation v;
+    tree t = random(8);
+    auto rt = t.random_node();
+    t->print(std::cout) << std::endl;
+    rt->print(std::cout) << std::endl;
+    std::cout << t->eval(v) << std::endl;
+    //std::cout << stochastic::get_max(0) << std::endl;
     
-    std::vector<tree> p(1);
-    for (auto & t : p) t = random(0);
-    tree::iterator it = p[0].this_iterator();
-    it.right();
-    it->print(std::cout) << std::endl;
+    //dfs(*rt, [&](tree t) {
+    //    t->print(std::cout) << std::endl;
+    //});
     
-    std::cout << p[0]->eval(valuation()) << std::endl;
-    
-    p[0]->print(std::cout ) << std::endl;
-    
-    //p[0]->print(std::cout);
+    //rt->print(std::cout) << std::endl;
+    //std::cout << t->eval(v) << std::endl;
     
     return 0;
 }

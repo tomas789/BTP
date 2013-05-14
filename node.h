@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 
 class node 
@@ -31,13 +32,13 @@ class tree;
 
 class tree_iterator 
 {
-    tree * tree_;
     node * node_;
 public:
-    tree_iterator() : tree_(nullptr), node_(nullptr) { }
+    tree_iterator() : node_(nullptr) { }
     tree_iterator(const tree & t);
-    tree_iterator & left();
-    tree_iterator & right();
+    tree_iterator(node * node) : node_(node) { };
+    tree_iterator left();
+    tree_iterator right();
     bool operator!= (const tree_iterator & t);
     node * operator-> ();
     tree operator* ();
@@ -54,17 +55,20 @@ public:
     tree(tree && t) { *this = std::move(t); }
     tree(std::unique_ptr<node> && tree) : tree_(std::move(tree)) { }
     tree(unsigned depth) { }
-    tree & operator= (const tree & t) { tree_ = std::move(t.tree_->clone()); }
-    tree & operator= (tree && t) { tree_ = std::move(t.tree_); }
+    tree & operator= (const tree & t) { tree_ = std::move(t.tree_->clone()); return *this; }
+    tree & operator= (tree && t) { tree_ = std::move(t.tree_); return *this; }
     node * operator-> () { return tree_.get(); }
     
-    iterator this_iterator() { return iterator(*this); }
+    iterator this_iterator() { return iterator(tree_.get()); }
     iterator end() { return iterator(); }
-    
+    iterator random_node();
     friend class node_non_terminal;
     friend tree random(unsigned depth);
     friend class tree_iterator;
 };
+
+template <class UnaryFunction>
+UnaryFunction dfs(tree::iterator t, UnaryFunction f);
 
 class node_non_terminal : public node
 {
@@ -231,37 +235,41 @@ tree random(unsigned depth) {
     return tree(std::unique_ptr<node>(n));
 }
 
+tree::iterator tree::random_node() {
+    std::vector<tree::iterator> v;
+    dfs(*this, [&](tree::iterator & t) { v.push_back(t); });
+    if (0 == v.size()) return tree::iterator();
+    else return v[stochastic::get_max(v.size() - 1)];
+}
+
 tree_iterator::tree_iterator(const tree & t) {
-    tree_ = const_cast<tree *>(&t);
     node_ = t.tree_.get();
 }
 
-tree_iterator & tree_iterator::left() {
-    if (node_ == nullptr && tree_ == nullptr)
+tree_iterator tree_iterator::left() {
+    if (node_ == nullptr)
         throw std::out_of_range("calling left() on end()");
     else if (node_->is_terminal()) {
-        tree_ = nullptr;
-        node_ = nullptr;
+        return tree_iterator(nullptr);
     } else {
         node_non_terminal * n = (node_non_terminal *) node_;
-        node_ = (node *) (n->left_.get());
+        return tree_iterator((node *) (n->left_.get()));
     }
 }
 
-tree_iterator & tree_iterator::right() {
-    if (node_ == nullptr && tree_ == nullptr)
+tree_iterator tree_iterator::right() {
+    if (node_ == nullptr)
         throw std::out_of_range("calling right() on end()");
     else if (node_->is_terminal()) {
-        tree_ = nullptr;
-        node_ = nullptr;
+        return tree_iterator(nullptr);
     } else {
         node_non_terminal * n = (node_non_terminal *) node_;
-        node_ = (node *) n->right_.get();
+        return tree_iterator((node *) n->right_.get());
     }
 }
 
 bool tree_iterator::operator!= (const tree_iterator & t) {
-    return tree_ != t.tree_ || node_ != t.node_;
+    return node_ != t.node_;
 }
 
 node * tree_iterator::operator-> () { 
@@ -270,6 +278,18 @@ node * tree_iterator::operator-> () {
 
 tree tree_iterator::operator* () { 
     return tree(std::move(node_->clone())); 
+}
+
+template <class UnaryFunction>
+UnaryFunction dfs(tree::iterator it, UnaryFunction f) {
+    if (it != tree::iterator()) {
+        f(it);
+        if (! it->is_terminal()) {
+            dfs(it.left(), f);
+            dfs(it.right(), f);
+        }
+    }
+    return f;
 }
 
 #endif	/* NODE_H */
