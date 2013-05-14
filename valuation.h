@@ -9,6 +9,7 @@
 #define	VALUATION_H
 
 #include "compile_config.h"
+#include "run_config.h"
 
 class valuation 
 {

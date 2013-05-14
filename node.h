@@ -84,6 +84,9 @@ class tree
     std::unique_ptr<node> tree_;
 public:
     using iterator = tree_iterator;
+
+    enum class subtree { left, right };
+    using subtree_iterator = std::pair<iterator, subtree>;
     
     tree() : tree_(nullptr) { };
     tree(const tree & t) { *this = t; };
@@ -109,6 +112,8 @@ public:
      * Get iterator to random subtree
      */
     iterator random_node();
+
+    subtree_iterator random_subtree();
     
     friend class node_non_terminal;
     friend tree random(unsigned depth);
@@ -148,6 +153,7 @@ public:
     virtual std::unique_ptr<node> clone() const = 0;
     
     friend class tree_iterator;
+    friend void swap( tree::subtree_iterator& a, tree::subtree_iterator& b );
 };
 
 class node_terminal : public node
@@ -298,6 +304,18 @@ tree::iterator tree::random_node() {
     else return v[stochastic::get_max(v.size() - 1)];
 }
 
+tree::subtree_iterator tree::random_subtree() {
+    std::vector<tree::subtree_iterator> v;
+    dfs(*this, [&](tree::iterator & t) {
+        if (! t->is_terminal()) {
+            v.push_back(std::make_pair(t, tree::subtree::left));
+            v.push_back(std::make_pair(t, tree::subtree::right));
+        }
+    });
+    if (!v.size()) return std::make_pair(tree::iterator(), tree::subtree::left);
+    else return v[stochastic::get_max(v.size() - 1)];
+}
+
 tree_iterator::tree_iterator(const tree & t) {
     node_ = t.tree_.get();
 }
@@ -347,6 +365,22 @@ UnaryFunction dfs(tree::iterator it, UnaryFunction f) {
     }
     return f;
 }
+
+void swap(tree::subtree_iterator &lhs, tree::subtree_iterator &rhs)
+{
+    auto left = (node_non_terminal *) lhs.first.operator->();
+    auto right = (node_non_terminal *) rhs.first.operator->();
+    std::unique_ptr<node> tmp;
+    if (lhs.second == tree::subtree::left && rhs.second == tree::subtree::left)
+        std::swap(left->left_, right->left_);
+    else if (lhs.second == tree::subtree::left && rhs.second == tree::subtree::right)
+        std::swap(left->left_, right->right_);
+    else if (lhs.second == tree::subtree::right && rhs.second == tree::subtree::left)
+        std::swap(left->right_, right->left_);
+    else if (lhs.second == tree::subtree::right && rhs.second == tree::subtree::right)
+        std::swap(left->right_, right->right_);
+}
+
 
 #endif	/* NODE_H */
 

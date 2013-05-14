@@ -1,5 +1,4 @@
 #include "valuation.h"
-#include "run_config.h"
 
 valuation::valuation() {
     tick_ = run_config::tree::num_variables;

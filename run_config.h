@@ -10,6 +10,8 @@
 
 #include "compile_config.h"
 
+#include <chrono>
+
 struct run_config 
 {   
     struct tree 
