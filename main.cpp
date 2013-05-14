@@ -9,28 +9,14 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <chrono>
 
-#include "node.h"
-#include "genetic_operators.h"
-#include "valuation.h"
+#include "benchmarks.h"
 
 int 
 main(int argc, char * argv[]) {
 
-    valuation v;
-    tree t = random(8);
-    auto rt = t.random_node();
-    t->print(std::cout) << std::endl;
-    rt->print(std::cout) << std::endl;
-    std::cout << t->eval(v) << std::endl;
-    //std::cout << stochastic::get_max(0) << std::endl;
-    
-    //dfs(*rt, [&](tree t) {
-    //    t->print(std::cout) << std::endl;
-    //});
-    
-    //rt->print(std::cout) << std::endl;
-    //std::cout << t->eval(v) << std::endl;
+    benchmarks::random_tree(std::cout);
     
     return 0;
 }
