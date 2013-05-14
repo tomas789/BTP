@@ -13,6 +13,10 @@
 
 namespace benchmarks {
 
+    /**
+     * Measure time required to generate full-tree
+     * Output is simple statistic
+     */
     void random_tree(std::ostream & out);
 
 }
