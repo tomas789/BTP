@@ -16,20 +16,45 @@
 #include <stdexcept>
 #include <utility>
 
-
+/**
+ * Abstract class holding program tree structure.
+ *
+ * Every time you have pointer to this class, you do not own it. If you
+ * have unique_ptr<node>, you own it.
+ */
 class node 
 {
 public:
     using value_type = compile_config::tree::value_type;
     
+    /**
+     * Evaluate this tree using supplied valuation
+     */
     virtual value_type eval(const valuation & v) const = 0;
+    
+    /**
+     * True if this is a leaf in tree false otherwise
+     */
     virtual bool is_terminal() const = 0;
+    
+    /**
+     * Print tree to stream.
+     * Tree is printed as flat structure
+     */
     virtual std::ostream & print(std::ostream & out) const = 0;
+    
+    /**
+     * Make a copy of this tree
+     */
     virtual std::unique_ptr<node> clone() const = 0;
 };
 
 class tree;
 
+/**
+ * Iterator into the tree.
+ * tree_iterator::tree_iterator() is equivalent to end()
+ */
 class tree_iterator 
 {
     node * node_;
@@ -37,7 +62,17 @@ public:
     tree_iterator() : node_(nullptr) { }
     tree_iterator(const tree & t);
     tree_iterator(node * node) : node_(node) { };
+    
+    /**
+     * Get left subtree
+     * Throws std::out_of_range when called on end()
+     */
     tree_iterator left();
+    
+    /**
+     * Get right subtree
+     * Throws std::out_of_range when called on end()
+     */
     tree_iterator right();
     bool operator!= (const tree_iterator & t);
     node * operator-> ();
@@ -54,19 +89,36 @@ public:
     tree(const tree & t) { *this = t; };
     tree(tree && t) { *this = std::move(t); }
     tree(std::unique_ptr<node> && tree) : tree_(std::move(tree)) { }
-    tree(unsigned depth) { }
     tree & operator= (const tree & t) { tree_ = std::move(t.tree_->clone()); return *this; }
     tree & operator= (tree && t) { tree_ = std::move(t.tree_); return *this; }
+    
+    /**
+     * OBSOLETED
+     * Access associated tree's root node
+     */
     node * operator-> () { return tree_.get(); }
     
     iterator this_iterator() { return iterator(tree_.get()); }
+    
+    /**
+     * Returns equivalent to STL end()
+     */
     iterator end() { return iterator(); }
+    
+    /**
+     * Get iterator to random subtree
+     */
     iterator random_node();
+    
     friend class node_non_terminal;
     friend tree random(unsigned depth);
     friend class tree_iterator;
 };
 
+/**
+ * DFS Algorithm on subtree
+ * Applies f to every node in DFS order
+ */
 template <class UnaryFunction>
 UnaryFunction dfs(tree::iterator t, UnaryFunction f);
 
@@ -192,6 +244,10 @@ public:
     }
 };
 
+/**
+ * Generate random tree with supplied depth and every leaf at the same level.
+ * 0 for just one terminal node
+ */
 tree random(unsigned depth) {
     node * n = nullptr;
     if (depth) {
