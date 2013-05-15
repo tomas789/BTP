@@ -12,13 +12,14 @@
 
 #include "node.h"
 #include "valuation.h"
+#include "stochastic.h"
 
 int 
 main(int argc, char * argv[]) {
 
     valuation v;
 
-    std::vector<tree> t(10);
+    std::vector<tree> t(20);
     std::generate(t.begin(), t.end(), []() { return random(3); });
 
     std::cout << " ### GENERATED ###" << std::endl;

@@ -9,7 +9,6 @@
 #define	STOCHASTIC_H
 
 #include "compile_config.h"
-#include "run_config.h"
 
 #include <random>
 #include <chrono>
@@ -23,8 +22,7 @@ namespace stochastic
     /**
      * Random number engine
      */
-    static compile_config::stochastic::engine engine(
-        (unsigned)std::chrono::system_clock::now().time_since_epoch().count());
+    static compile_config::stochastic::engine engine((unsigned)std::chrono::system_clock::now().time_since_epoch().count());
     
     /**
      * Generate (pseudo-)random number in range [min, max]
@@ -77,9 +75,7 @@ namespace stochastic
      * Generate (pseudo-)random boolean 
      * @return 
      */
-    bool get_bool() {
-        return get_minmax(0, 1);
-    }
+    bool get_bool();
 }
 
 
