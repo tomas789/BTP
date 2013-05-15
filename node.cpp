@@ -21,20 +21,20 @@ tree random(unsigned depth) {
         tree right = random(depth - 1);
         switch (stochastic::get_max(3)) {
             case 0:
-                n = (node *) new non_terminal<node_non_terminal::type::addition>(
-                                                                                 std::move(left.tree_), std::move(right.tree_));
+                n = (node *) new non_terminal<node_non_terminal::type::addition>(std::move(left.tree_),
+                                                                                 std::move(right.tree_));
                 break;
             case 1:
-                n = (node *) new non_terminal<node_non_terminal::type::subtraction>(
-                                                                                    std::move(left.tree_), std::move(right.tree_));
+                n = (node *) new non_terminal<node_non_terminal::type::subtraction>(std::move(left.tree_),
+                                                                                    std::move(right.tree_));
                 break;
             case 2:
-                n = (node *) new non_terminal<node_non_terminal::type::multiplication>(
-                                                                                       std::move(left.tree_), std::move(right.tree_));
+                n = (node *) new non_terminal<node_non_terminal::type::multiplication>(std::move(left.tree_),
+                                                                                       std::move(right.tree_));
                 break;
             case 3:
-                n = (node *) new non_terminal<node_non_terminal::type::protected_division>(
-                                                                                           std::move(left.tree_), std::move(right.tree_));
+                n = (node *) new non_terminal<node_non_terminal::type::protected_division>(std::move(left.tree_),
+                                                                                           std::move(right.tree_));
                 break;
             default:
                 throw "should never reach this";
@@ -42,14 +42,11 @@ tree random(unsigned depth) {
         }
     } else {
         if (stochastic::get_bool()) {
-            n = (node *) new terminal<node_terminal::type::constant>(
-                                                                     stochastic::get_minmax(
-                                                                                            run_config::tree::min_value,
+            n = (node *) new terminal<node_terminal::type::constant>(stochastic::get_minmax(run_config::tree::min_value,
                                                                                             run_config::tree::max_value)
                                                                      );
         } else {
-            n = (node *) new terminal<node_terminal::type::variable>(
-                                                                     stochastic::get_max(run_config::tree::num_variables - 1));
+            n = (node *) new terminal<node_terminal::type::variable>(stochastic::get_max(run_config::tree::num_variables - 1));
         }
     }
     
