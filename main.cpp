@@ -13,6 +13,7 @@
 #include "node.h"
 #include "valuation.h"
 #include "stochastic.h"
+#include "population.h"
 
 int 
 main(int argc, char * argv[]) {
@@ -21,6 +22,12 @@ main(int argc, char * argv[]) {
 
     std::vector<tree> t(20);
     std::generate(t.begin(), t.end(), []() { return random(3); });
+
+    population<tree> pop(5);
+
+    std::cout << pop << std::endl;
+
+    return 0;
 
     std::cout << " ### GENERATED ###" << std::endl;
     std::for_each(t.begin(), t.end(), [&](tree & tmp) {

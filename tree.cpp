@@ -35,7 +35,7 @@ tree & tree::operator= (tree && t) {
     return *this;
 }
 
-node * tree::operator-> () {
+node * tree::operator-> () const {
     return tree_.get();
 }
 
@@ -64,4 +64,12 @@ tree::subtree_iterator tree::random_subtree() {
     });
     if (!v.size()) return std::make_pair(tree::iterator(), tree::subtree::left);
     else return v[stochastic::get_max(v.size() - 1)];
+}
+
+tree tree::random(std::size_t depth) {
+    return tree(std::move(::random(depth)));
+}
+
+std::ostream & operator << (std::ostream & out, const tree & t) {
+    return t->print(out);
 }

@@ -35,7 +35,7 @@ public:
      * OBSOLETED
      * Access associated tree's root node
      */
-    node * operator-> ();
+    node * operator-> () const;
     
     iterator this_iterator();
     
@@ -50,10 +50,18 @@ public:
     iterator random_node();
     
     subtree_iterator random_subtree();
+
+    /**
+     * Uniform way to genenrate random individual to meet requirements of
+     * population class
+     */
+    static tree random(std::size_t depth = 5);
     
     friend class node_non_terminal;
     friend tree random(unsigned depth);
     friend class tree_iterator;
 };
+
+std::ostream & operator << (std::ostream & out, const tree & t);
 
 #endif
